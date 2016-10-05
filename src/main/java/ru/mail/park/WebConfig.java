@@ -1,4 +1,4 @@
-package ru.mail.park.ru.mail.park;
+package ru.mail.park;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

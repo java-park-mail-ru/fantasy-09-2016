@@ -1,4 +1,4 @@
-package ru.mail.park.ru.mail.park.main;
+package ru.mail.park.main;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import ru.mail.park.ru.mail.park.model.UserProfile;
-import ru.mail.park.ru.mail.park.services.AccountService;
+import ru.mail.park.model.UserProfile;
+import ru.mail.park.services.AccountService;
 
 import javax.servlet.http.HttpSession;
 

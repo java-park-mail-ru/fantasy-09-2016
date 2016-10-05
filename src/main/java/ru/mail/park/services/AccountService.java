@@ -1,7 +1,7 @@
-package ru.mail.park.ru.mail.park.services;
+package ru.mail.park.services;
 
 import org.springframework.stereotype.Service;
-import ru.mail.park.ru.mail.park.model.UserProfile;
+import ru.mail.park.model.UserProfile;
 
 import java.util.concurrent.ConcurrentHashMap;
 
