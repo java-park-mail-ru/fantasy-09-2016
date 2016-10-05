@@ -1,0 +1,8 @@
+deploy:
+  provider: heroku
+  app: progressive-team-backend
+  api_key: "df533e7e-11a3-4d44-82a0-32cd37034d16"
+
+language: java
+jdk:
+  - oraclejdk8
