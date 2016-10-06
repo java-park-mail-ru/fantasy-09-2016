@@ -31,13 +31,13 @@ public class RegistrationController {
         final String email = body.getEmail();
 
         if (StringUtils.isEmpty(login) || StringUtils.isEmpty(password) || StringUtils.isEmpty(email)) {
-            return ResponseEntity.badRequest().body(new FailedResponse("empty fields in request"));
+            return failedResponce(FailedResponseCode.EMPTY_FIELDS_IN_REQUEST);
         }
 
         final UserProfile existingUser = accountService.getUser(login);
 
         if (existingUser != null) {
-            return ResponseEntity.badRequest().body(new FailedResponse("user already exists"));
+            return failedResponce(FailedResponseCode.USER_ALREADY_EXITS);
         }
 
         accountService.addUser(login, password, email);
@@ -52,17 +52,17 @@ public class RegistrationController {
 
         final String sessLogin = (String) httpSession.getAttribute("login");
         if (sessLogin == null) {
-            return ResponseEntity.badRequest().body(new FailedResponse("auth required"));
+            return failedResponce(FailedResponseCode.AUTH_REQUIRED);
         }
 
         if (StringUtils.isEmpty(login)) {
-            return ResponseEntity.badRequest().body(new FailedResponse("empty fields in request"));
+            return failedResponce(FailedResponseCode.EMPTY_FIELDS_IN_REQUEST);
         }
 
         final UserProfile up = accountService.getUser(login);
 
         if (up == null) {
-            return ResponseEntity.badRequest().body(new FailedResponse("user don't exist"));
+            return failedResponce(FailedResponseCode.USER_NOT_EXIST);
         }
 
         return ResponseEntity.ok(new UserDataResponse(up));
@@ -73,7 +73,7 @@ public class RegistrationController {
 
         final String login = (String) httpSession.getAttribute("login");
         if (login == null) {
-            return ResponseEntity.badRequest().body(new FailedResponse("auth required"));
+            return failedResponce(FailedResponseCode.AUTH_REQUIRED);
         }
 
         accountService.deleteUser(login);
@@ -89,19 +89,19 @@ public class RegistrationController {
         final String password = body.getPassword();
 
         if (StringUtils.isEmpty(login) || StringUtils.isEmpty(password)) {
-            return ResponseEntity.badRequest().body(new FailedResponse("empty fields in request"));
+            return failedResponce(FailedResponseCode.EMPTY_FIELDS_IN_REQUEST);
         }
 
         final String sessionLogin = (String) httpSession.getAttribute("login");
 
         if (sessionLogin != null) {
-            return ResponseEntity.badRequest().body(new FailedResponse("already authorized"));
+            return failedResponce(FailedResponseCode.ALREADY_AUTHORIZED);
         }
 
         final UserProfile user = accountService.getUser(login);
 
         if (user == null || !user.getPassword().equals(password)) {
-            return ResponseEntity.badRequest().body(new FailedResponse("auth failed"));
+            return failedResponce(FailedResponseCode.AUTH_FAILED);
         }
 
         httpSession.setAttribute("login", login);
@@ -114,7 +114,7 @@ public class RegistrationController {
 
         final String login = (String) httpSession.getAttribute("login");
         if (login == null) {
-            return ResponseEntity.badRequest().body(new FailedResponse("auth required"));
+            return failedResponce(FailedResponseCode.AUTH_REQUIRED);
         }
 
         httpSession.removeAttribute("login");
@@ -122,6 +122,18 @@ public class RegistrationController {
         return ResponseEntity.ok(EMPTY_RESPONSE);
     }
 
+    private ResponseEntity<FailedResponse> failedResponce(FailedResponseCode frc) {
+        return ResponseEntity.badRequest().body(new FailedResponse(frc.ordinal()));
+    }
+
+    private enum FailedResponseCode {
+        EMPTY_FIELDS_IN_REQUEST,
+        AUTH_REQUIRED,
+        AUTH_FAILED,
+        USER_ALREADY_EXITS,
+        USER_NOT_EXIST,
+        ALREADY_AUTHORIZED
+    }
 
     private static final class RegistrationRequest {
         private final String login;
@@ -171,14 +183,14 @@ public class RegistrationController {
     }
 
     private static final class FailedResponse {
-        private final String error;
+        private final int error;
 
-        private FailedResponse(String error) {
+        private FailedResponse(int error) {
             this.error = error;
         }
 
         @SuppressWarnings("unused")
-        public String getError() {
+        public int getError() {
             return error;
         }
     }
