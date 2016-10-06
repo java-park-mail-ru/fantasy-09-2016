@@ -31,13 +31,13 @@ public class RegistrationController {
         final String email = body.getEmail();
 
         if (StringUtils.isEmpty(login) || StringUtils.isEmpty(password) || StringUtils.isEmpty(email)) {
-            return failedResponce(FailedResponseCode.EMPTY_FIELDS_IN_REQUEST);
+            return FailedResponseCode.EMPTY_FIELDS_IN_REQUEST.response;
         }
 
         final UserProfile existingUser = accountService.getUser(login);
 
         if (existingUser != null) {
-            return failedResponce(FailedResponseCode.USER_ALREADY_EXITS);
+            return FailedResponseCode.USER_ALREADY_EXITS.response;
         }
 
         accountService.addUser(login, password, email);
@@ -52,17 +52,17 @@ public class RegistrationController {
 
         final String sessLogin = (String) httpSession.getAttribute("login");
         if (sessLogin == null) {
-            return failedResponce(FailedResponseCode.AUTH_REQUIRED);
+            return FailedResponseCode.AUTH_REQUIRED.response;
         }
 
         if (StringUtils.isEmpty(login)) {
-            return failedResponce(FailedResponseCode.EMPTY_FIELDS_IN_REQUEST);
+            return FailedResponseCode.EMPTY_FIELDS_IN_REQUEST.response;
         }
 
         final UserProfile up = accountService.getUser(login);
 
         if (up == null) {
-            return failedResponce(FailedResponseCode.USER_NOT_EXIST);
+            return FailedResponseCode.USER_NOT_EXIST.response;
         }
 
         return ResponseEntity.ok(new UserDataResponse(up));
@@ -73,7 +73,7 @@ public class RegistrationController {
 
         final String login = (String) httpSession.getAttribute("login");
         if (login == null) {
-            return failedResponce(FailedResponseCode.AUTH_REQUIRED);
+            return FailedResponseCode.AUTH_REQUIRED.response;
         }
 
         accountService.deleteUser(login);
@@ -89,19 +89,19 @@ public class RegistrationController {
         final String password = body.getPassword();
 
         if (StringUtils.isEmpty(login) || StringUtils.isEmpty(password)) {
-            return failedResponce(FailedResponseCode.EMPTY_FIELDS_IN_REQUEST);
+            return FailedResponseCode.EMPTY_FIELDS_IN_REQUEST.response;
         }
 
         final String sessionLogin = (String) httpSession.getAttribute("login");
 
         if (sessionLogin != null) {
-            return failedResponce(FailedResponseCode.ALREADY_AUTHORIZED);
+            return FailedResponseCode.ALREADY_AUTHORIZED.response;
         }
 
         final UserProfile user = accountService.getUser(login);
 
         if (user == null || !user.getPassword().equals(password)) {
-            return failedResponce(FailedResponseCode.AUTH_FAILED);
+            return FailedResponseCode.AUTH_FAILED.response;
         }
 
         httpSession.setAttribute("login", login);
@@ -114,7 +114,7 @@ public class RegistrationController {
 
         final String login = (String) httpSession.getAttribute("login");
         if (login == null) {
-            return failedResponce(FailedResponseCode.AUTH_REQUIRED);
+            return FailedResponseCode.AUTH_REQUIRED.response;
         }
 
         httpSession.removeAttribute("login");
@@ -122,17 +122,19 @@ public class RegistrationController {
         return ResponseEntity.ok(EMPTY_RESPONSE);
     }
 
-    private ResponseEntity<FailedResponse> failedResponce(FailedResponseCode frc) {
-        return ResponseEntity.badRequest().body(new FailedResponse(frc.ordinal()));
-    }
-
     private enum FailedResponseCode {
-        EMPTY_FIELDS_IN_REQUEST,
-        AUTH_REQUIRED,
-        AUTH_FAILED,
-        USER_ALREADY_EXITS,
-        USER_NOT_EXIST,
-        ALREADY_AUTHORIZED
+        EMPTY_FIELDS_IN_REQUEST(0),
+        AUTH_REQUIRED(1),
+        AUTH_FAILED(2),
+        USER_ALREADY_EXITS(3),
+        USER_NOT_EXIST(4),
+        ALREADY_AUTHORIZED(5);
+
+        private final ResponseEntity<FailedResponse> response;
+
+        FailedResponseCode(int code) {
+            this.response = ResponseEntity.badRequest().body(new FailedResponse(code));
+        }
     }
 
     private static final class RegistrationRequest {
