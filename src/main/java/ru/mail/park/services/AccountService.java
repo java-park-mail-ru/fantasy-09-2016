@@ -18,7 +18,8 @@ public class AccountService {
         return registeredUsers.get(login);
     }
 
-    public void deleteUser(String login) {
-        registeredUsers.remove(login);
+    public UserProfile[] listUsers() {
+        final int len = registeredUsers.size();
+        return registeredUsers.values().toArray(new UserProfile[len]);
     }
 }
