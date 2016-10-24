@@ -65,4 +65,15 @@ public class SessionController {
         return ResponseEntity.ok(EMPTY_RESPONSE);
     }
 
+    @RequestMapping(path = "/api/session", method = RequestMethod.GET)
+    public ResponseEntity info(HttpSession httpSession) {
+
+        final String login = (String) httpSession.getAttribute("login");
+        if (login == null) {
+            return FailedResponse.AUTH_REQUIRED.getResponse();
+        }
+
+        return ResponseEntity.ok(new UserDataBody(accountService.getUser(login)));
+    }
+
 }
