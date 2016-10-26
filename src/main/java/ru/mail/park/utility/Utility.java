@@ -2,14 +2,26 @@ package ru.mail.park.utility;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import ru.mail.park.model.UserProfile;
 
-import java.util.Arrays;
+import java.util.List;
 
 public final class Utility {
 
     public static final String EMPTY_RESPONSE = "{}";
+
+    public static String object2JSON(Object o) {
+        String result;
+        try {
+            result = new ObjectMapper().writeValueAsString(o);
+        } catch (JsonProcessingException e) {
+            result = "";
+        }
+        return result;
+    }
 
     public enum FailedResponse {
         EMPTY_FIELDS_IN_REQUEST(0, "empty fields in request"), // 0x -- request errors
@@ -40,9 +52,9 @@ public final class Utility {
         private final String email;
 
         @JsonCreator
-        private RegistrationRequest(@JsonProperty("login") String login,
-                                    @JsonProperty("password") String password,
-                                    @JsonProperty("email") String email) {
+        public RegistrationRequest(@JsonProperty("login") String login,
+                                   @JsonProperty("password") String password,
+                                   @JsonProperty("email") String email) {
             this.login = login;
             this.password = password;
             this.email = email;
@@ -66,8 +78,8 @@ public final class Utility {
         private final String password;
 
         @JsonCreator
-        private LoginRequest(@JsonProperty("login") String login,
-                             @JsonProperty("password") String password) {
+        public LoginRequest(@JsonProperty("login") String login,
+                            @JsonProperty("password") String password) {
             this.login = login;
             this.password = password;
         }
@@ -83,21 +95,14 @@ public final class Utility {
 
     public static final class ChangeUserRequest {
         private final String email;
-        private final String avatar;
 
         @JsonCreator
-        private ChangeUserRequest(@JsonProperty("email") String email,
-                                  @JsonProperty("avatar") String avatar) {
+        public ChangeUserRequest(@JsonProperty("email") String email) {
             this.email = email;
-            this.avatar = avatar;
         }
 
         public String getEmail() {
             return email;
-        }
-
-        public String getAvatar() {
-            return avatar;
         }
     }
 
@@ -164,8 +169,8 @@ public final class Utility {
     public static final class ListUsersBody {
         private final UserDataBody[] users;
 
-        public ListUsersBody(UserProfile[] users) {
-            this.users = Arrays.stream(users)
+        public ListUsersBody(List<UserProfile> users) {
+            this.users = users.stream()
                     .map(UserDataBody::new)
                     .toArray(UserDataBody[]::new);
         }

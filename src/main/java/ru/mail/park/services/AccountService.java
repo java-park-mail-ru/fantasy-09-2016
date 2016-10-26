@@ -1,25 +1,54 @@
 package ru.mail.park.services;
 
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.mail.park.model.UserProfile;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 
 @Service
-public class AccountService {
-    private final ConcurrentHashMap<String, UserProfile> registeredUsers = new ConcurrentHashMap<>();
+@Transactional
+public class AccountService implements IAccountService {
+    private static final RowMapper<UserProfile> USER_MAPPER =
+            (res, rowNum) -> new UserProfile(res.getString(1), res.getString(2), res.getString(3));
+    private final JdbcTemplate template;
 
-
-    public void addUser(String login, String password, String email) {
-        registeredUsers.put(login, new UserProfile(login, password, email));
+    public AccountService(JdbcTemplate template) {
+        this.template = template;
     }
 
+    @Override
+    public void createUser(String login, String password, String email) {
+        template.update("INSERT INTO user(login, password, email) VALUES(?, ?, ?)", login, password, email);
+    }
+
+    @Override
+    public void changePassword(String login, String newPassword) {
+        template.update("UPDATE user SET password=? WHERE login=?", newPassword, login);
+    }
+
+    @Override
+    public void setDetails(String login, String email) {
+        template.update("UPDATE user SET email=? WHERE login=?", email, login);
+    }
+
+    @Override
     public UserProfile getUser(String login) {
-        return registeredUsers.get(login);
+        UserProfile up;
+        try {
+            up = template.queryForObject("SELECT login, password, email FROM user WHERE login=?", USER_MAPPER, login);
+        } catch (EmptyResultDataAccessException e) {
+            up = null;
+        }
+        return up;
     }
 
-    public UserProfile[] listUsers() {
-        final int len = registeredUsers.size();
-        return registeredUsers.values().toArray(new UserProfile[len]);
+    @Override
+    public List<UserProfile> listUsers(boolean order, int offset) {
+        final String query = String.format("select login, password, email from user order by login %s limit %d, 10", order ? "asc" : "desc", offset);
+        return template.query(query, USER_MAPPER);
     }
 }

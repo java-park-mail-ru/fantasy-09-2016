@@ -8,8 +8,7 @@ import ru.mail.park.model.UserProfile;
 import ru.mail.park.services.AccountService;
 
 import javax.servlet.http.HttpSession;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.List;
 
 import static ru.mail.park.utility.Utility.*;
 
@@ -24,7 +23,7 @@ public class UserController {
     }
 
     @RequestMapping(path = "/api/user", method = RequestMethod.POST)
-    public ResponseEntity addUser(@RequestBody RegistrationRequest body) {
+    public ResponseEntity createUser(@RequestBody RegistrationRequest body) {
         final String login = body.getLogin();
         final String password = body.getPassword();
         final String email = body.getEmail();
@@ -39,7 +38,7 @@ public class UserController {
             return FailedResponse.USER_ALREADY_EXITS.getResponse();
         }
 
-        accountService.addUser(login, password, email);
+        accountService.createUser(login, password, email);
 
         return ResponseEntity.ok(EMPTY_RESPONSE);
     }
@@ -54,37 +53,29 @@ public class UserController {
             return FailedResponse.AUTH_REQUIRED.getResponse();
         }
 
-        UserProfile[] users = accountService.listUsers();
+        boolean boolOrder = true;
 
         if (!StringUtils.isEmpty(order)) {
-            final Comparator<UserProfile> c;
-            switch (order) {
-                case "asc":
-                    c = (u1, u2) -> u1.getLogin().compareTo(u2.getLogin());
-                    break;
-                case "desc":
-                    c = (u1, u2) -> -u1.getLogin().compareTo(u2.getLogin());
-                    break;
-                default:
-                    return FailedResponse.WRONG_ORDER_TYPE.getResponse();
+            if (!order.equals("asc") && !order.equals("desc")) {
+                return FailedResponse.WRONG_ORDER_TYPE.getResponse();
             }
-            Arrays.sort(users, c);
+            boolOrder = order.equals("asc");
         }
 
+        int intOffset = 0;
+
         if (!StringUtils.isEmpty(offset)) {
-            final int intOffset;
             try {
                 intOffset = Integer.parseInt(offset);
             } catch (NumberFormatException e) {
                 return FailedResponse.WRONG_OFFSET.getResponse();
             }
-            if (intOffset < 0 || intOffset >= users.length) {
+            if (intOffset < 0) {
                 return FailedResponse.WRONG_OFFSET.getResponse();
             }
-            final UserProfile[] userSlice = new UserProfile[users.length - intOffset];
-            System.arraycopy(users, intOffset, userSlice, 0, users.length - intOffset);
-            users = userSlice;
         }
+
+        final List<UserProfile> users = accountService.listUsers(boolOrder, intOffset);
 
         return ResponseEntity.ok(new ListUsersBody(users));
     }
@@ -121,24 +112,19 @@ public class UserController {
         }
 
         final String email = body.getEmail();
-        final String avatar = body.getAvatar();
 
-        if (StringUtils.isEmpty(email) || StringUtils.isEmpty(avatar)) {
+        if (StringUtils.isEmpty(email)) {
             return FailedResponse.EMPTY_FIELDS_IN_REQUEST.getResponse();
         }
 
-
-        final UserProfile up = accountService.getUser(sessLogin);
-
-        up.setEmail(email);
-        up.setAvatar(avatar);
+        accountService.setDetails(sessLogin, email);
 
         return ResponseEntity.ok(EMPTY_RESPONSE);
     }
 
-    @RequestMapping(path = "/api/user/password", method = RequestMethod.PUT)
-    public ResponseEntity putUserPassword(@RequestBody ChangePasswordRequest body,
-                                          HttpSession httpSession) {
+    @RequestMapping(path = "/api/password", method = RequestMethod.PUT)
+    public ResponseEntity changePassword(@RequestBody ChangePasswordRequest body,
+                                         HttpSession httpSession) {
 
         final String sessLogin = (String) httpSession.getAttribute("login");
         if (sessLogin == null) {
@@ -158,7 +144,7 @@ public class UserController {
             return FailedResponse.AUTH_FAILED.getResponse();
         }
 
-        up.setPassword(newPassword);
+        accountService.changePassword(sessLogin, newPassword);
 
         return ResponseEntity.ok(EMPTY_RESPONSE);
     }
