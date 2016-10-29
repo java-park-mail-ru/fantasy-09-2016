@@ -180,4 +180,10 @@ public final class Utility {
             return users;
         }
     }
+
+    public static final class UserAlreadyExistException extends Exception {
+        public UserAlreadyExistException(Exception e) {
+            super(e);
+        }
+    }
 }

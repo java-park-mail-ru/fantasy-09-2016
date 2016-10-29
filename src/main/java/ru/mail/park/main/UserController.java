@@ -32,14 +32,11 @@ public class UserController {
             return FailedResponse.EMPTY_FIELDS_IN_REQUEST.getResponse();
         }
 
-        final UserProfile existingUser = accountService.getUser(login);
-
-        if (existingUser != null) {
+        try {
+            accountService.createUser(login, password, email);
+        } catch (UserAlreadyExistException e) {
             return FailedResponse.USER_ALREADY_EXITS.getResponse();
         }
-
-        accountService.createUser(login, password, email);
-
         return ResponseEntity.ok(EMPTY_RESPONSE);
     }
 

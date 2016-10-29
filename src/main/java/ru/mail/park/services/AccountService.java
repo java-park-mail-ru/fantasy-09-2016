@@ -1,11 +1,13 @@
 package ru.mail.park.services;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mail.park.model.UserProfile;
+import ru.mail.park.utility.Utility;
 
 import java.util.List;
 
@@ -21,8 +23,12 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    public void createUser(String login, String password, String email) {
-        template.update("INSERT INTO user(login, password, email) VALUES(?, ?, ?)", login, password, email);
+    public void createUser(String login, String password, String email) throws Utility.UserAlreadyExistException {
+        try {
+            template.update("INSERT INTO user(login, password, email) VALUES(?, ?, ?)", login, password, email);
+        } catch (DuplicateKeyException e) {
+            throw new Utility.UserAlreadyExistException(e);
+        }
     }
 
     @Override
