@@ -36,7 +36,7 @@ public abstract class AbstractTest {
                 .header("content-type", "application/json")
                 .content(Utility.object2JSON(new Utility.RegistrationRequest("login", "password", "email"))))
                 .andExpect(status().isOk());
-        assertEquals(1, countRowsInTable(template, "user"));
+        assertEquals(1, countRowsInTable(template, "users"));
     }
 
     public void testGetUser(String email) throws Exception {
