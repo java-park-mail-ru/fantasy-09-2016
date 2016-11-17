@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import ru.mail.park.model.UserProfile;
-import ru.mail.park.services.AccountService;
+import ru.mail.park.services.IAccountService;
 
 import javax.servlet.http.HttpSession;
 
@@ -17,10 +17,10 @@ import static ru.mail.park.utility.Utility.*;
 @RestController
 public class SessionController {
 
-    private final AccountService accountService;
+    private final IAccountService accountService;
 
     @Autowired
-    public SessionController(AccountService accountService) {
+    public SessionController(IAccountService accountService) {
         this.accountService = accountService;
     }
 

@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import ru.mail.park.model.UserProfile;
-import ru.mail.park.services.AccountService;
+import ru.mail.park.services.IAccountService;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -15,10 +15,10 @@ import static ru.mail.park.utility.Utility.*;
 @RestController
 public class UserController {
 
-    private final AccountService accountService;
+    private final IAccountService accountService;
 
     @Autowired
-    public UserController(AccountService accountService) {
+    public UserController(IAccountService accountService) {
         this.accountService = accountService;
     }
 
