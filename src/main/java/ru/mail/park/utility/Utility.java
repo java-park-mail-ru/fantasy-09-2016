@@ -8,8 +8,11 @@ import org.springframework.http.ResponseEntity;
 import ru.mail.park.model.UserProfile;
 
 import java.util.List;
+import java.util.Random;
 
 public final class Utility {
+
+    public static final Random RANDOM = new Random();
 
     public static final String EMPTY_RESPONSE = "{}";
 
@@ -182,8 +185,14 @@ public final class Utility {
     }
 
     public static final class UserAlreadyExistException extends Exception {
-        public UserAlreadyExistException(Exception e) {
-            super(e);
+        public UserAlreadyExistException(Throwable cause) {
+            super(cause);
+        }
+    }
+
+    public static final class WebSocketIOException extends Exception {
+        public WebSocketIOException(Throwable cause) {
+            super(cause);
         }
     }
 }
