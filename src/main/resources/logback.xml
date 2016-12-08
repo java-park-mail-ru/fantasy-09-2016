@@ -9,7 +9,7 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>finagle-example.log</file>
+        <file>game.log</file>
         <encoder>
             <pattern>
                 %d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{128} - %msg%n
