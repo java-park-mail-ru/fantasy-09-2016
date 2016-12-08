@@ -3,6 +3,8 @@ package ru.mail.park.game;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.mail.park.message.MessageReceiver;
 import ru.mail.park.websocket.NetUser;
 
@@ -13,6 +15,7 @@ import java.util.List;
 
 public final class Game {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
     private static List<Game> games = Collections.synchronizedList(new ArrayList<>());
 
     private NetUser[] users = new NetUser[2];
@@ -41,8 +44,8 @@ public final class Game {
             ipm1 = MessageReceiver.receiveInitPositionMessage(users[0]);
             ipm2 = MessageReceiver.receiveInitPositionMessage(users[1]);
         } catch (IOException e) {
-            e.printStackTrace();
-            return; // TODO error
+            LOGGER.error("Net IO error on game init", e);
+            return;
         }
         for (InitPosition.Unit u : ipm1.getUnits()) {
             units.add(new Unit(u.position[0], u.position[1], UnitType.parse(u.type), 1, u.id));
@@ -63,7 +66,7 @@ public final class Game {
             try {
                 action = MessageReceiver.receiveActionMessage(next);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Net IO error on receiving game turn", e);
                 return;
             }
             processAction(action, fragment);
@@ -101,7 +104,7 @@ public final class Game {
         try {
             message = new ObjectMapper().writeValueAsString(gameTurn);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            LOGGER.error("Net IO error when sending game turn", e);
         }
         users[0].send(message);
         users[1].send(message);

@@ -15,16 +15,16 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 public class NetUser implements Consumer<String> {
+    private final String login;
     private List<WebSocketSession> sessions = Collections.synchronizedList(new ArrayList<>());
     private UserStatus status = UserStatus.WAITING;
-
     private Queue<String> inputMessages = new ArrayBlockingQueue<>(500);
     private Queue<String> outputMessages = new ArrayBlockingQueue<>(500);
-
     private Lock lock = new ReentrantLock();
     private Condition condition = lock.newCondition();
 
     public NetUser(WebSocketSession session) {
+        login = (String) session.getAttributes().get("login");
         addConnection(session);
         new Thread() {
             @Override
@@ -42,6 +42,10 @@ public class NetUser implements Consumer<String> {
                 }
             }
         }.start();
+    }
+
+    public String getLogin() {
+        return login;
     }
 
     public void addConnection(WebSocketSession session) {
