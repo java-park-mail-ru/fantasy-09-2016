@@ -20,6 +20,5 @@ public class InitQueue {
             LOGGER.info(String.format("New game:\n\tUser1 - %s\n\tUser2 - %s", u1.getLogin(), u2.getLogin()));
             Game.createGame(u1, u2);
         }
-
     }
 }

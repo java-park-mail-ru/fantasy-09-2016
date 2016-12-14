@@ -16,7 +16,7 @@ import java.util.List;
 public final class Game {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
-    private static List<Game> games = Collections.synchronizedList(new ArrayList<>());
+    private static int id = 0;
 
     private NetUser[] users = new NetUser[2];
     private List<Unit> units = Collections.synchronizedList(new ArrayList<>());
@@ -27,9 +27,9 @@ public final class Game {
         users[1] = u2;
     }
 
-    public static void createGame(NetUser u1, NetUser u2) {
+    public static synchronized void createGame(NetUser u1, NetUser u2) {
         final Game room = new Game(u1, u2);
-        new Thread() {
+        new Thread(String.format("Game #%d main thread", id++)) {
             @Override
             public void run() {
                 room.start();
