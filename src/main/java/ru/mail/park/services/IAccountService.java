@@ -1,12 +1,13 @@
 package ru.mail.park.services;
 
 import ru.mail.park.model.UserProfile;
+import ru.mail.park.utility.Utility;
 
 import java.util.List;
 
 public interface IAccountService {
 
-    void createUser(String login, String password, String email);
+    void createUser(String login, String password, String email) throws Utility.UserAlreadyExistException;
 
     UserProfile getUser(String login);
 
