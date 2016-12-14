@@ -35,7 +35,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
             } catch (InterruptedException e) {
                 LOGGER.warn("WS session clearer is interrupted", e);
             }
-        }).start();
+        }, "WS session clearer").start();
     }
 
     public static void addHandleTextMessageListener(Consumer<String> listener, WebSocketSession webSocketSession) {

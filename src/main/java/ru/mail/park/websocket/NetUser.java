@@ -26,7 +26,7 @@ public class NetUser implements Consumer<String> {
     public NetUser(WebSocketSession session) {
         login = (String) session.getAttributes().get("login");
         addConnection(session);
-        new Thread() {
+        new Thread(String.format("User(%s) messages sender", login)) {
             @Override
             public void run() {
                 while (true) {
